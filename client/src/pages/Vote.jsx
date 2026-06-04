@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { validateMember, getCandidates, castVotes, getElectionState } from '../api';
 
@@ -71,6 +71,7 @@ export default function Vote() {
   if (phase && phase !== 'VOTING') {
     return (
       <Layout>
+        <Link to="/" className="btn-ghost inline-flex items-center gap-2 mb-8">← Back</Link>
         <div className="card border-l-4 border-stone">
           <h2 className="font-heading text-2xl font-bold text-warm-white uppercase mb-2">Voting Closed</h2>
           <p className="text-stone">Voting is not currently open. Check back when the election is live.</p>
@@ -91,6 +92,7 @@ export default function Vote() {
 
       {step === 'id' && (
         <form onSubmit={handleValidate} className="space-y-4">
+          <Link to="/" className="btn-ghost inline-flex items-center gap-2 mb-2">← Back</Link>
           <div>
             <label className="font-mono text-xs text-stone uppercase tracking-widest block mb-2">Member ID</label>
             <input

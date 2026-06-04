@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { getPublishedResults } from '../api';
 
@@ -15,6 +16,7 @@ export default function Results() {
   if (error) {
     return (
       <Layout>
+        <Link to="/" className="btn-ghost inline-flex items-center gap-2 mb-8">← Back</Link>
         <div className="card border-l-4 border-stone">
           <h2 className="font-heading text-2xl font-bold text-warm-white uppercase mb-2">Not Yet Available</h2>
           <p className="text-stone">{error}</p>
