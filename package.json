@@ -2,7 +2,7 @@
   "name": "flux-voting",
   "version": "1.0.0",
   "scripts": {
-    "build": "cd client && npm install && npx vite build",
+    "build": "cd client && npm install --include=dev && npx vite build",
     "start": "node server/index.js"
   },
   "dependencies": {
