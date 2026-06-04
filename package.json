@@ -1,0 +1,12 @@
+{
+  "name": "flux-voting",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "cd client && npm install && npm run build",
+    "install:server": "cd server && npm install",
+    "start": "node server/index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

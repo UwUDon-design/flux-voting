@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-carbon text-warm-white font-body;
+  }
+
+  h1, h2, h3, h4, h5 {
+    @apply font-heading;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-ember hover:bg-orange-600 text-white font-heading font-bold uppercase tracking-wider px-6 py-3 transition-colors disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+
+  .btn-ghost {
+    @apply border border-stone hover:border-warm-white text-stone hover:text-warm-white font-heading font-bold uppercase tracking-wider px-6 py-3 transition-colors;
+  }
+
+  .btn-danger {
+    @apply bg-red-700 hover:bg-red-600 text-white font-heading font-bold uppercase tracking-wider px-4 py-2 text-sm transition-colors;
+  }
+
+  .input {
+    @apply bg-graphite border border-stone focus:border-ember outline-none text-warm-white font-mono px-4 py-3 w-full placeholder-stone transition-colors;
+  }
+
+  .card {
+    @apply bg-graphite border border-stone/30 p-6;
+  }
+
+  .tag {
+    @apply font-mono text-xs uppercase tracking-widest px-2 py-1;
+  }
+}
