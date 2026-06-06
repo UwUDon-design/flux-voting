@@ -9,6 +9,9 @@ const app = express();
 
 const isProduction = process.env.NODE_ENV === 'production';
 
+// Trust Vercel's reverse proxy so secure cookies work over HTTPS
+app.set('trust proxy', 1);
+
 app.use(cors({
   origin: isProduction ? false : (process.env.CLIENT_URL || 'http://localhost:5173'),
   credentials: true,
