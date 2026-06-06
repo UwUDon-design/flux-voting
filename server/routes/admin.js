@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const { db } = require('../firebase');
 const { requireAdmin } = require('../middleware/adminAuth');
 const { generateBulkIds } = require('../utils/idGenerator');
@@ -18,30 +19,42 @@ router.post('/login', async (req, res) => {
     const validUsername = username === process.env.ADMIN_USERNAME;
     const validPassword = await bcrypt.compare(password, process.env.ADMIN_PASSWORD_HASH || '');
 
-    // Fallback: plain-text comparison if no hash is set (for initial setup)
-    const plainMatch = !process.env.ADMIN_PASSWORD_HASH && password === process.env.ADMIN_PASSWORD;
-
-    if (!validUsername || (!validPassword && !plainMatch)) {
+    if (!validUsername || !validPassword) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    req.session.isAdmin = true;
-    req.session.adminUsername = username;
-    req.session.save(err => {
-      if (err) return res.status(500).json({ error: 'Session error' });
-      res.json({ success: true });
+    const token = jwt.sign(
+      { isAdmin: true, username },
+      process.env.SESSION_SECRET || 'dev-secret-change-this',
+      { expiresIn: '1h' }
+    );
+
+    const isProduction = process.env.NODE_ENV === 'production';
+    res.cookie('admin_token', token, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
+      maxAge: 60 * 60 * 1000,
     });
+
+    res.json({ success: true });
   } catch {
     res.status(500).json({ error: 'Server error' });
   }
 });
 
 router.post('/logout', (req, res) => {
-  req.session.destroy(() => res.json({ success: true }));
+  const isProduction = process.env.NODE_ENV === 'production';
+  res.clearCookie('admin_token', {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? 'none' : 'lax',
+  });
+  res.json({ success: true });
 });
 
 router.get('/me', requireAdmin, (req, res) => {
-  res.json({ username: req.session.adminUsername });
+  res.json({ username: req.admin.username });
 });
 
 // ─── Election state ────────────────────────────────────────────────────────

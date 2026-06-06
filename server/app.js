@@ -1,15 +1,13 @@
 require('dotenv').config();
 const express = require('express');
-const session = require('express-session');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 const { generalLimiter } = require('./middleware/rateLimiter');
-const FirestoreStore = require('./utils/firestoreSessionStore');
 
 const app = express();
 
 const isProduction = process.env.NODE_ENV === 'production';
 
-// Trust Vercel's reverse proxy so secure cookies work over HTTPS
 app.set('trust proxy', 1);
 
 app.use(cors({
@@ -18,20 +16,7 @@ app.use(cors({
 }));
 
 app.use(express.json());
-
-app.use(session({
-  store: new FirestoreStore({ collection: 'sessions' }),
-  secret: process.env.SESSION_SECRET || 'dev-secret-change-this',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: isProduction,
-    httpOnly: true,
-    sameSite: isProduction ? 'none' : 'lax',
-    maxAge: 60 * 60 * 1000,
-  },
-}));
-
+app.use(cookieParser());
 app.use(generalLimiter);
 
 app.use('/api/admin', require('./routes/admin'));
