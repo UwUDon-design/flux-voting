@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
+import { confirm } from '../../utils/confirm';
 import { getAdminCandidates, removeCandidate, closePositionRegistration } from '../../api';
 
 export default function AdminCandidates() {
@@ -20,22 +22,24 @@ export default function AdminCandidates() {
   useEffect(() => { load(); }, []);
 
   const handleRemove = async (candidateId, name, positionTitle) => {
-    if (!window.confirm(`Remove ${name} from ${positionTitle}? This cannot be undone.`)) return;
+    if (!await confirm(`Remove ${name} from ${positionTitle}? This cannot be undone.`)) return;
     try {
       await removeCandidate(candidateId);
       await load();
+      toast.success(`${name} removed`);
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to remove candidate');
+      toast.error(err.response?.data?.error || 'Failed to remove candidate');
     }
   };
 
   const handleCloseRegistration = async (positionId, title) => {
-    if (!window.confirm(`Close registration for ${title}? No new candidates will be able to register.`)) return;
+    if (!await confirm(`Close registration for ${title}? No new candidates will be able to register.`)) return;
     try {
       await closePositionRegistration(positionId);
       setPositions(p => p.map(pos => pos.id === positionId ? { ...pos, registrationClosed: true } : pos));
+      toast.success(`Registration closed for ${title}`);
     } catch {
-      alert('Failed to close registration');
+      toast.error('Failed to close registration');
     }
   };
 

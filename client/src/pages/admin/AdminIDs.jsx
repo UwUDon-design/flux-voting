@@ -1,4 +1,7 @@
 import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
+import { QRCodeSVG } from 'qrcode.react';
+import { confirm } from '../../utils/confirm';
 import { getAllIds, generateIds, invalidateId, reinstateId, exportIdsCsv } from '../../api';
 
 const STATUS_COLORS = {
@@ -10,6 +13,7 @@ const STATUS_COLORS = {
 
 export default function AdminIDs() {
   const [members, setMembers] = useState([]);
+  const [qrId, setQrId] = useState(null);
   const [count, setCount] = useState(10);
   const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
@@ -38,7 +42,7 @@ export default function AdminIDs() {
     try {
       const result = await generateIds(Number(count));
       await load();
-      alert(`Generated ${result.count} new IDs successfully.`);
+      toast.success(`Generated ${result.count} new IDs`);
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to generate IDs');
     } finally {
@@ -47,12 +51,13 @@ export default function AdminIDs() {
   };
 
   const handleInvalidate = async (id) => {
-    if (!window.confirm(`Invalidate ${id}? This member will no longer be able to vote or register.`)) return;
+    if (!await confirm(`Invalidate ${id}? This member will no longer be able to vote or register.`)) return;
     try {
       await invalidateId(id);
       setMembers(m => m.map(mem => mem.id === id ? { ...mem, status: 'invalid' } : mem));
+      toast.success(`${id} invalidated`);
     } catch {
-      alert('Failed to invalidate ID');
+      toast.error('Failed to invalidate ID');
     }
   };
 
@@ -60,8 +65,9 @@ export default function AdminIDs() {
     try {
       await reinstateId(id);
       setMembers(m => m.map(mem => mem.id === id ? { ...mem, status: 'generated' } : mem));
+      toast.success(`${id} reinstated`);
     } catch {
-      alert('Failed to reinstate ID');
+      toast.error('Failed to reinstate ID');
     }
   };
 
@@ -161,21 +167,30 @@ export default function AdminIDs() {
                     </span>
                   </td>
                   <td className="py-3 text-right">
-                    {m.status !== 'invalid' ? (
+                    <div className="flex items-center justify-end gap-3">
                       <button
-                        onClick={() => handleInvalidate(m.id)}
-                        className="font-mono text-xs text-red-500/70 hover:text-red-400 transition-colors"
+                        onClick={() => setQrId(m.id)}
+                        className="font-mono text-xs text-stone/60 hover:text-stone transition-colors"
+                        title="Show QR code"
                       >
-                        Invalidate
+                        QR
                       </button>
-                    ) : (
-                      <button
-                        onClick={() => handleReinstate(m.id)}
-                        className="font-mono text-xs text-wheat/70 hover:text-wheat transition-colors"
-                      >
-                        Reinstate
-                      </button>
-                    )}
+                      {m.status !== 'invalid' ? (
+                        <button
+                          onClick={() => handleInvalidate(m.id)}
+                          className="font-mono text-xs text-red-500/70 hover:text-red-400 transition-colors"
+                        >
+                          Invalidate
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => handleReinstate(m.id)}
+                          className="font-mono text-xs text-wheat/70 hover:text-wheat transition-colors"
+                        >
+                          Reinstate
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -188,6 +203,23 @@ export default function AdminIDs() {
           </table>
         )}
       </div>
+
+      {qrId && (
+        <div
+          className="fixed inset-0 bg-black/70 flex items-center justify-center z-50"
+          onClick={() => setQrId(null)}
+        >
+          <div
+            className="bg-carbon border border-stone/30 p-8 space-y-4 flex flex-col items-center"
+            onClick={e => e.stopPropagation()}
+          >
+            <p className="font-mono text-warm-white tracking-widest text-lg">{qrId}</p>
+            <QRCodeSVG value={qrId} size={200} bgColor="#1E1E1E" fgColor="#F0EBE0" />
+            <p className="font-mono text-xs text-stone">Member scans this to enter their ID</p>
+            <button onClick={() => setQrId(null)} className="btn-ghost w-full text-sm">Close</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

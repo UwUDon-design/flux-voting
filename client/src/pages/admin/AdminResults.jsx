@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { confirm } from '../../utils/confirm';
 import { getAdminResults, exportResultsCsv, getAdminElection, advanceElection } from '../../api';
 
 export default function AdminResults() {
@@ -20,7 +21,7 @@ export default function AdminResults() {
   useEffect(() => { load().catch(() => {}); }, []);
 
   const handlePublish = async () => {
-    if (!window.confirm('Publish results? All members will be able to see the outcome on the public results page.')) return;
+    if (!await confirm('Publish results? All members will be able to see the outcome on the public results page.')) return;
     setPublishing(true);
     try {
       await advanceElection('publish_results');

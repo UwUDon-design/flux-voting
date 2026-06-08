@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { confirm } from '../../utils/confirm';
 import { getAdminElection, getParticipation, advanceElection } from '../../api';
 
 const PHASES = ['SETUP', 'REGISTRATION', 'VOTING', 'RESULTS', 'PUBLISHED'];
@@ -28,7 +29,7 @@ export default function AdminDashboard() {
     if (!election) return;
     const nextAction = PHASE_ACTIONS[election.phase];
     if (!nextAction) return;
-    if (!window.confirm(nextAction.confirm)) return;
+    if (!await confirm(nextAction.confirm)) return;
     setError('');
     setLoading(true);
     try {

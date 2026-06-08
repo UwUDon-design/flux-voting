@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedAdminRoute from './components/ProtectedAdminRoute';
 import AdminLayout from './components/AdminLayout';
@@ -35,6 +36,14 @@ function AdminSection() {
 export default function App() {
   return (
     <AuthProvider>
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          style: { background: '#2E2E2E', color: '#F0EBE0', border: '1px solid #7A7060', fontFamily: 'DM Mono, monospace', fontSize: '13px' },
+          success: { iconTheme: { primary: '#E05C00', secondary: '#F0EBE0' } },
+          error: { iconTheme: { primary: '#ef4444', secondary: '#F0EBE0' } },
+        }}
+      />
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/register" element={<Register />} />
