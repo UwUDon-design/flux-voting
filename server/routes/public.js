@@ -98,6 +98,7 @@ router.post('/register', voteLimiter, async (req, res) => {
 
       if (!memberSnap.exists) throw apiError('Invalid member ID', 404);
       if (memberSnap.data().status === 'invalid') throw apiError('This ID has been invalidated', 403);
+      if ((memberSnap.data().registered_positions || []).length > 0) throw apiError('You have already registered for a position. Each member may only run for one position.', 409);
       if (!posSnap.exists) throw apiError('Invalid position', 404);
 
       const pos = posSnap.data();
